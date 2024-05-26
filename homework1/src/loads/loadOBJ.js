@@ -46,22 +46,27 @@ function loadOBJ(renderer, path, name, objMaterial, transform) {
 							let Translation = [transform.modelTransX, transform.modelTransY, transform.modelTransZ];
 							let Scale = [transform.modelScaleX, transform.modelScaleY, transform.modelScaleZ];
 
-							let light = renderer.lights[0].entity;
-							switch (objMaterial) {
-								case 'PhongMaterial':
-									material = buildPhongMaterial(colorMap, mat.specular.toArray(), light, Translation, Scale, "./src/shaders/phongShader/phongVertex.glsl", "./src/shaders/phongShader/phongFragment.glsl");
-									shadowMaterial = buildShadowMaterial(light, Translation, Scale, "./src/shaders/shadowShader/shadowVertex.glsl", "./src/shaders/shadowShader/shadowFragment.glsl");
-									break;
-							}
+							for (let i = 0; i < renderer.lights.length; ++i)
+							{
+								let light = renderer.lights[i].entity;
+								switch (objMaterial) {
+									case 'PhongMaterial':
+										material = buildPhongMaterial(colorMap, mat.specular.toArray(), light, Translation, Scale, "./src/shaders/phongShader/phongVertex.glsl", "./src/shaders/phongShader/phongFragment.glsl");
+										shadowMaterial = buildShadowMaterial(light, Translation, Scale, "./src/shaders/shadowShader/shadowVertex.glsl", "./src/shaders/shadowShader/shadowFragment.glsl");
+										break;
+								}
 
-							material.then((data) => {
-								let meshRender = new MeshRender(renderer.gl, mesh, data);
-								renderer.addMeshRender(meshRender);
-							});
-							shadowMaterial.then((data) => {
-								let shadowMeshRender = new MeshRender(renderer.gl, mesh, data);
-								renderer.addShadowMeshRender(shadowMeshRender);
-							});
+								material.then((data) => {
+									data.lightIndex = i;
+									let meshRender = new MeshRender(renderer.gl, mesh, data);
+									renderer.addMeshRender(meshRender);
+								});
+								shadowMaterial.then((data) => {
+									data.lightIndex = i;
+									let shadowMeshRender = new MeshRender(renderer.gl, mesh, data);
+									renderer.addShadowMeshRender(shadowMeshRender);
+								});
+							}
 						}
 					});
 				}, onProgress, onError);

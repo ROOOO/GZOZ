@@ -17,6 +17,8 @@ class Material {
         this.#flatten_attribs = attribs;
 
         this.frameBuffer = frameBuffer;
+
+        this.lightIndex = 0;
     }
 
     setMeshAttribs(extraAttribs) {
