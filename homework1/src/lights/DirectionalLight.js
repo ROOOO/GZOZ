@@ -15,7 +15,7 @@ class DirectionalLight {
         }
     }
 
-    CalcLightMVP(translate, scale) {
+    CalcLightMVP(translate, scale, rotate = [0, 0, 0]) {
         let lightMVP = mat4.create();
         let modelMatrix = mat4.create();
         let viewMatrix = mat4.create();
@@ -25,6 +25,9 @@ class DirectionalLight {
         mat4.identity(modelMatrix);
         mat4.translate(modelMatrix, modelMatrix, translate);
         mat4.scale(modelMatrix, modelMatrix, scale);
+        mat4.rotateX(modelMatrix, modelMatrix, rotate[0]);
+        mat4.rotateY(modelMatrix, modelMatrix, rotate[1]);
+        mat4.rotateZ(modelMatrix, modelMatrix, rotate[2]);
 
         // View transform
         mat4.lookAt(viewMatrix, this.lightPos, this.focalPoint, this.lightUp);

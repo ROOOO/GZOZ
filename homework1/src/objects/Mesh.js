@@ -1,7 +1,8 @@
 class TRSTransform {
-    constructor(translate = [0, 0, 0], scale = [1, 1, 1]) {
+    constructor(translate = [0, 0, 0], scale = [1, 1, 1], rotate = [0, 0, 0]) {
         this.translate = translate;
         this.scale = scale;
+		this.rotate = rotate;
     }
 }
 class Mesh {

@@ -87,7 +87,7 @@ function GAMES202Main() {
 	requestAnimationFrame(mainLoop);
 }
 
-function setTransform(t_x, t_y, t_z, s_x, s_y, s_z) {
+function setTransform(t_x, t_y, t_z, s_x, s_y, s_z, r_x = 0, r_y = 0, r_z = 0) {
 	return {
 		modelTransX: t_x,
 		modelTransY: t_y,
@@ -95,5 +95,8 @@ function setTransform(t_x, t_y, t_z, s_x, s_y, s_z) {
 		modelScaleX: s_x,
 		modelScaleY: s_y,
 		modelScaleZ: s_z,
+		modelRotateX: r_x,
+		modelRotateY: r_y,
+		modelRotateZ: r_z,
 	};
 }
