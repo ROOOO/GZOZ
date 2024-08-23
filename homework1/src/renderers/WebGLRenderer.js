@@ -55,6 +55,19 @@ class WebGLRenderer {
         this.rotateLight += 0.00001;
     }
 
+    updateLightsMVP() {
+        for (let l = 0; l < this.lights.length; l++) {
+            const lightMVPs = this.calcMeshesLightMVPs(l);
+            for (let i = 0; i < this.shadowMeshes.length; i++) {
+                if (this.shadowMeshes[i].material.lightIndex !== l) {
+                    continue;
+                }
+                this.shadowMeshes[i].material.uniforms.uLightMVP.value = lightMVPs[i];
+                this.meshes[i].material.uniforms.uLightMVP.value = lightMVPs[i];
+            }
+        }
+    }
+
     render() {
         const gl = this.gl;
 
@@ -67,6 +80,7 @@ class WebGLRenderer {
         // console.assert(this.lights.length == 1, "Multiple lights");
 
         this.updateRotations();
+        this.updateLightsMVP();
 
         for (let l = 0; l < this.lights.length; l++) {
             this.clearShadowMap(gl, l);
@@ -75,15 +89,12 @@ class WebGLRenderer {
             // TODO: Support all kinds of transform
             this.lights[l].meshRender.draw(this.camera);
 
-            const lightMVPs = this.calcMeshesLightMVPs(l);
-
             // Shadow pass
             if (this.lights[l].entity.hasShadowMap == true) {
                 for (let i = 0; i < this.shadowMeshes.length; i++) {
                     if (this.shadowMeshes[i].material.lightIndex !== l) {
                         continue;
                     }
-                    this.shadowMeshes[i].material.uniforms.uLightMVP.value = lightMVPs[i];
                     this.shadowMeshes[i].draw(this.camera);
                 }
             }
@@ -100,7 +111,6 @@ class WebGLRenderer {
                 }
                 this.gl.useProgram(this.meshes[i].shader.program.glShaderProgram);
                 this.gl.uniform3fv(this.meshes[i].shader.program.uniforms.uLightPos, this.lights[l].entity.lightPos);
-                this.meshes[i].material.uniforms.uLightMVP.value = lightMVPs[i];
                 this.meshes[i].draw(this.camera);
             }
 
