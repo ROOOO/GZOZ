@@ -7,7 +7,6 @@ class WebGLRenderer {
         this.gl = gl;
         this.camera = camera;
         this.rotateModelY = 0.0;
-        this.rotateLight = 0.0;
     }
 
     addLight(light) {
@@ -52,7 +51,6 @@ class WebGLRenderer {
             mesh.transform.rotate[1] = Math.sin(this.rotateModelY) * 0.5 * Math.PI;
         }
         this.rotateModelY += 0.01;
-        this.rotateLight += 0.00001;
     }
 
     updateLightsMVP() {
