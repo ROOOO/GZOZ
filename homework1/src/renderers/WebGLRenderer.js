@@ -29,8 +29,6 @@ class WebGLRenderer {
         const lightMVPs = [];
         for (let i = 0; i < this.meshes.length; i++) {
             const mesh = this.meshes[i].mesh;
-            // [-PI/2, PI/2]
-            mesh.transform.rotate[1] = Math.sin(this.rotateModelY) * 0.5 * Math.PI;
             const translate = mesh.transform.translate;
             const rotate = mesh.transform.rotate;
             const scale = mesh.transform.scale;
@@ -41,6 +39,18 @@ class WebGLRenderer {
     }
 
     updateRotations() {
+        for (let l = 0; l < this.lights.length; l++) {
+            if (l === 1) {
+                let lightPos = this.lights[l].entity.lightPos;
+                vec3.rotateY(lightPos, lightPos, this.lights[l].entity.focalPoint, 0.01);
+            }
+            this.lights[l].meshRender.mesh.transform.translate = this.lights[l].entity.lightPos;
+        }
+        for (let i = 0; i < this.meshes.length; i++) {
+            const mesh = this.meshes[i].mesh;
+            // [-PI/2, PI/2]
+            mesh.transform.rotate[1] = Math.sin(this.rotateModelY) * 0.5 * Math.PI;
+        }
         this.rotateModelY += 0.01;
         this.rotateLight += 0.00001;
     }
@@ -63,11 +73,6 @@ class WebGLRenderer {
 
             // Draw light
             // TODO: Support all kinds of transform
-            if (l === 1) {
-                let lightPos = this.lights[l].entity.lightPos;
-                lightPos = vec3.rotateY(lightPos, lightPos, this.lights[l].entity.focalPoint, 0.01);
-            }
-            this.lights[l].meshRender.mesh.transform.translate = this.lights[l].entity.lightPos;
             this.lights[l].meshRender.draw(this.camera);
 
             const lightMVPs = this.calcMeshesLightMVPs(l);
