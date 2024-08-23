@@ -81,14 +81,14 @@ class WebGLRenderer {
         this.updateLightsMVP();
 
         for (let l = 0; l < this.lights.length; l++) {
-            this.clearShadowMap(gl, l);
-
             // Draw light
             // TODO: Support all kinds of transform
             this.lights[l].meshRender.draw(this.camera);
 
             // Shadow pass
             if (this.lights[l].entity.hasShadowMap == true) {
+                this.clearShadowMap(gl, l);
+
                 for (let i = 0; i < this.shadowMeshes.length; i++) {
                     if (this.shadowMeshes[i].material.lightIndex !== l) {
                         continue;
