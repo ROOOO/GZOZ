@@ -13,6 +13,7 @@ class PhongMaterial extends Material {
             'uShadowMap': { type: 'texture', value: light.fbo },
             'uLightMVP': { type: 'matrix4fv', value: lightMVP },
             'uShadowMapSize': { type: '1f', value: resolution },
+            'uFrustumSize': { type: '1f', value: light.frustumSize },
 
         }, [], vertexShader, fragmentShader);
     }

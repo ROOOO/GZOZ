@@ -10,6 +10,7 @@ uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
 uniform vec3 uLightIntensity;
 uniform float uShadowMapSize;
+uniform float uFrustumSize;
 
 varying highp vec2 vTextureCoord;
 varying highp vec3 vFragPos;
