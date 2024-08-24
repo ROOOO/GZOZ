@@ -24,6 +24,7 @@ varying highp vec3 vNormal;
 #define PCF_FILTER_RADIUS 10.0
 #define NEAR_PLANE 0.01
 #define WIDTH_LIGHT 10.0
+#define BIAS 0.0025
 
 #define EPS 1e-3
 #define PI 3.141592653589793
@@ -98,7 +99,7 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
   for (int i = 0; i < NUM_SAMPLES; ++i) {
     vec2 offset = poissonDisk[i] * searchRadiusUV;
     float shadowMapDepth = unpack(texture2D(shadowMap, uv + offset));
-    if (zReceiver > shadowMapDepth + EPS) {
+    if (zReceiver > shadowMapDepth + BIAS) {
       ++numBlocker;
       depth += shadowMapDepth;
     }
@@ -118,7 +119,7 @@ float PCF(sampler2D shadowMap, vec4 coords, float filterRadius) {
     float sp_depth = coords.z;
     vec2 offset = poissonDisk[i] * filterRadiusUV;
     float sm_depth = unpack(texture2D(shadowMap, coords.xy + offset));
-    if (sp_depth <= sm_depth + EPS) {
+    if (sp_depth <= sm_depth + BIAS) {
       visibility += 1.0;
     }
   }
@@ -148,7 +149,7 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 float useShadowMap(sampler2D shadowMap, vec4 shadowCoord){
   float sm_depth = unpack(texture2D(shadowMap, shadowCoord.xy));
   float sp_depth = shadowCoord.z;
-  if (sp_depth > sm_depth + EPS) {
+  if (sp_depth > sm_depth + BIAS) {
     return 0.0;
   }
   return 1.0;
