@@ -23,7 +23,7 @@ varying highp vec3 vNormal;
 #define NUM_RINGS 10
 #define PCF_FILTER_RADIUS 10.0
 #define NEAR_PLANE 0.01
-#define WIDTH_LIGHT 50.0
+#define WIDTH_LIGHT 10.0
 
 #define EPS 1e-3
 #define PI 3.141592653589793
@@ -91,9 +91,9 @@ void uniformDiskSamples( const in vec2 randomSeed ) {
 float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
   float depth = 0.0;
   int numBlocker = 0;
-  float distLight = vPositionFromLight.z;
-  float searchRadius = (distLight - NEAR_PLANE) / distLight * WIDTH_LIGHT;
-  float searchRadiusUV = searchRadius / uShadowMapSize;
+  float lightDistance = length(uLightPos - vFragPos);
+  float searchRadius = (lightDistance - NEAR_PLANE) / lightDistance * WIDTH_LIGHT;
+  float searchRadiusUV = searchRadius / uFrustumSize;
   poissonDiskSamples(uv);
   for (int i = 0; i < NUM_SAMPLES; ++i) {
     vec2 offset = poissonDisk[i] * searchRadiusUV;
