@@ -8,6 +8,7 @@ class DirectionalLight {
         this.lightUp = lightUp
 
         this.hasShadowMap = hasShadowMap;
+        this.frustumSize = 340;
         this.fbo = new FBO(gl);
         if (!this.fbo) {
             console.log("无法设置帧缓冲区对象");
@@ -33,7 +34,8 @@ class DirectionalLight {
         mat4.lookAt(viewMatrix, this.lightPos, this.focalPoint, this.lightUp);
 
         // Projection transform
-        mat4.ortho(projectionMatrix, -128, 128, -128, 128, 0.01, 500);
+        const frustumSize = this.frustumSize * 0.5;
+        mat4.ortho(projectionMatrix, -frustumSize, frustumSize, -frustumSize, frustumSize, 0.01, 500);
 
         mat4.multiply(lightMVP, projectionMatrix, viewMatrix);
         mat4.multiply(lightMVP, lightMVP, modelMatrix);
