@@ -123,12 +123,23 @@ namespace ProjEnv
             {
                 for (int x = 0; x < width; x++)
                 {
-                    // TODO: here you need to compute light sh of each face of cubemap of each pixel
-                    // TODO: 此处你需要计算每个像素下cubemap某个面的球谐系数
+                    // compute light sh of each face of cubemap of each pixel
+                    // 计算每个像素下cubemap某个面的球谐系数
                     Eigen::Vector3f dir = cubemapDirs[i * width * height + y * width + x];
                     int index = (y * width + x) * channel;
                     Eigen::Array3f Le(images[i][index + 0], images[i][index + 1],
                                       images[i][index + 2]);
+
+                    float delta_w = CalcArea(x, y, width, height);
+                    Eigen::Vector3d dir_normalized = Eigen::Vector3d(dir.x(), dir.y(), dir.z()).normalized();
+                    for (int l = 0; l < static_cast<int>(SHOrder) + 1; ++l)
+                    {
+                        for (int m = -l; m <= l; ++m)
+                        {
+                            auto sh_w = sh::EvalSH(l, m, dir_normalized);
+                            SHCoeffiecents[sh::GetIndex(l, m)] += Le * sh_w * delta_w;
+                        }
+                    }
                 }
             }
         }
