@@ -227,8 +227,12 @@ public:
                 }
                 else
                 {
-                    // TODO: here you need to calculate shadowed transport term of a given direction
-                    // TODO: 此处你需要计算给定方向下的shadowed传输项球谐函数值
+                    // calculate shadowed transport term of a given direction
+                    // 计算给定方向下的shadowed传输项球谐函数值
+                    if (H > 0.0f && !scene->rayIntersect(Ray3f(v, wi_normalized)))
+                    {
+                        return H;
+                    }
                     return 0;
                 }
             };
