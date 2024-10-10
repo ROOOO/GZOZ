@@ -217,11 +217,13 @@ public:
             auto shFunc = [&](double phi, double theta) -> double {
                 Eigen::Array3d d = sh::ToVector(phi, theta);
                 const auto wi = Vector3f(d.x(), d.y(), d.z());
+                const auto wi_normalized = wi.normalized();
+                double H = wi_normalized.dot(n.normalized());
                 if (m_Type == Type::Unshadowed)
                 {
-                    // TODO: here you need to calculate unshadowed transport term of a given direction
-                    // TODO: 此处你需要计算给定方向下的unshadowed传输项球谐函数值
-                    return 0;
+                    // calculate unshadowed transport term of a given direction
+                    // 计算给定方向下的unshadowed传输项球谐函数值
+                    return H > 0.0f ? H : 0.0f;
                 }
                 else
                 {
@@ -233,7 +235,7 @@ public:
             auto shCoeff = sh::ProjectFunction(SHOrder, shFunc, m_SampleCount);
             for (int j = 0; j < shCoeff->size(); j++)
             {
-                m_TransportSHCoeffs.col(i).coeffRef(j) = (*shCoeff)[j];
+                m_TransportSHCoeffs.col(i).coeffRef(j) = (*shCoeff)[j] / M_PI;
             }
         }
         if (m_Type == Type::Interreflection)
