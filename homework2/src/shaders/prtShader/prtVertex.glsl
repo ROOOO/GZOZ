@@ -12,7 +12,7 @@ varying highp vec3 vColor;
 
 float computeColor(mat3 precomputeL) {
     float result = 0.0;
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < 3; ++i) {
         result += dot(precomputeL[i], aPrecomputeLT[i]);
     }
     return result;
