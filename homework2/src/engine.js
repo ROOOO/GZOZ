@@ -3,11 +3,11 @@ let precomputeL = [];
 var cameraPosition = [50, 0, 100];
 
 var envmap = [
+	'assets/cubemap/CornellBox',
 	'assets/cubemap/GraceCathedral',
 	'assets/cubemap/Indoor',
 	'assets/cubemap/Skybox',
 	'assets/cubemap/Skybox2',
-	'assets/cubemap/CornellBox',
 ];
 
 var guiParams = {
@@ -123,11 +123,11 @@ async function GAMES202Main() {
 		const gui = new dat.gui.GUI();
 		const panelModel = gui.addFolder('Switch Environemtn Map');
 		panelModel.add(guiParams, 'envmapId', {
-			'GraceCathedral': 0,
-			'Indoor': 1,
-			'Skybox': 2,
-			'Skybox2': 3,
-			'CornellBox': 4,
+			'CornellBox': 0,
+			'GraceCathedral': 1,
+			'Indoor': 2,
+			'Skybox': 3,
+			'Skybox2': 4,
 		}).name('Envmap Name');
 		panelModel.open();
 	}
