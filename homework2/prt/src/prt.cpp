@@ -244,7 +244,16 @@ public:
         }
         if (m_Type == Type::Interreflection)
         {
-            // TODO: leave for bonus
+            for (int i = 0; i < mesh->getVertexCount(); i++)
+            {
+                const Point3f &v = mesh->getVertexPositions().col(i);
+                const Normal3f &n = mesh->getVertexNormals().col(i);
+                auto shCoeff = preprocessInterReflection(scene, v, n, 0);
+                for (int j = 0; j < shCoeff->size(); j++)
+                {
+                    m_TransportSHCoeffs.col(i).coeffRef(j) += (*shCoeff)[j];
+                }
+            }
         }
 
         // Save in face format
@@ -302,6 +311,95 @@ public:
     std::string toString() const
     {
         return "PRTIntegrator[]";
+    }
+
+private:
+    std::unique_ptr<std::vector<double>> preprocessInterReflection(const Scene *scene,
+                                                                   const Point3f& position, const Normal3f& normal,
+                                                                   int bounced)
+    {
+        std::unique_ptr<std::vector<double>> coeffs(new std::vector<double>());
+        coeffs->assign(SHCoeffLength, 0.0);
+
+        if (bounced > m_Bounce || !scene || m_SampleCount <= 0 || SHOrder <= 0 || SHCoeffLength <= 0)
+        {
+            return coeffs;
+        }
+
+        // This is the approach demonstrated in [1] and is useful for arbitrary
+        // functions on the sphere that are represented analytically.
+        const int sample_side = static_cast<int>(floor(sqrt(m_SampleCount)));
+
+        // generate sample_side^2 uniformly and stratified samples over the sphere
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> rng(0.0, 1.0);
+        for (int t = 0; t < sample_side; t++)
+        {
+            for (int p = 0; p < sample_side; p++)
+            {
+                double alpha = (t + rng(gen)) / sample_side;
+                double beta = (p + rng(gen)) / sample_side;
+                // See http://www.bogotobogo.com/Algorithms/uniform_distribution_sphere.php
+                double phi = 2.0 * M_PI * beta;
+                double theta = acos(2.0 * alpha - 1.0);
+
+                {
+                    Eigen::Array3d d = sh::ToVector(phi, theta);
+                    const auto wi = Vector3f(d.x(), d.y(), d.z());
+                    const auto wi_normalized = wi.normalized();
+                    double H = wi_normalized.dot(normal.normalized());
+                    if (H <= 0.0f)
+                    {
+                        continue;
+                    }
+
+                    Intersection its;
+                    if (!scene->rayIntersect(Ray3f(position, wi_normalized), its))
+                    {
+                        continue;
+                    }
+                    if (!its.mesh)
+                    {
+                        continue;
+                    }
+
+                    const MatrixXf &itsNormals = its.mesh->getVertexNormals();
+                    const Point3f &itsTriIndex = its.tri_index;
+                    const int triIndex0 = itsTriIndex[0], triIndex1 = itsTriIndex[1], triIndex2 = itsTriIndex[2];
+                    const Vector3f &bary = its.bary;
+
+                    for (int i = 0; i < SHCoeffLength; ++i)
+                    {
+                        double interpolatedSH = m_TransportSHCoeffs.col(triIndex0)[i] * bary.x() +
+                                                m_TransportSHCoeffs.col(triIndex1)[i] * bary.y() +
+                                                m_TransportSHCoeffs.col(triIndex2)[i] * bary.z();
+                        (*coeffs)[i] += interpolatedSH * H;
+                    }
+
+                    Normal3f itsNormal = itsNormals.col(triIndex0).normalized() * bary.x() +
+                                         itsNormals.col(triIndex1).normalized() * bary.y() +
+                                         itsNormals.col(triIndex2).normalized() * bary.z();
+                    itsNormal = itsNormal.normalized();
+
+                    auto shIRCoeff = preprocessInterReflection(scene, its.p, itsNormal, bounced + 1);
+                    for (int i = 0; i < SHCoeffLength; ++i)
+                    {
+                        (*coeffs)[i] += (*shIRCoeff)[i] * H;
+                    }
+                };
+            }
+        }
+
+        // scale by the probability of a particular sample, which is
+        // 1/sample_side^2 for the number of samples drawn uniformly.
+        double weight = 1.0 / (sample_side * sample_side);
+        for (unsigned int i = 0; i < coeffs->size(); i++)
+        {
+            (*coeffs)[i] *= weight;
+        }
+
+        return coeffs;
     }
 
 private:
