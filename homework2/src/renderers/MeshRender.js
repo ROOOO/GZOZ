@@ -183,16 +183,6 @@ class MeshRender {
 				gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeMaps[guiParams.envmapId].texture);
 				gl.uniform1i(this.shader.program.uniforms[k], textureNum);
 				textureNum += 1;
-			} else if (this.material.uniforms[k].type === 'PrecomputeL') {
-				const matrices = getMat3ValueFromRGB(precomputeL[guiParams.envmapId]);
-				const flattenedMatrices = new Float32Array(
-					matrices.flatMap(matrix => Object.values(matrix))
-				);
-				gl.uniformMatrix3fv(
-					this.shader.program.uniforms[k],
-					false,
-					flattenedMatrices
-				)
 			}
 		}
 	}
