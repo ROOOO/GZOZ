@@ -1,3 +1,8 @@
+# PRT (Diffuse Inter-reflection with Rotation)
+<div align="center">
+  <img src="https://github.com/ROOOO/GZOZ/blob/main/homework2/images/PRT_Rotation_CornellBox.gif" />
+</div>
+
 # PRT (Diffuse Inter-reflection)
 <div align="center">
   <img src="https://github.com/ROOOO/GZOZ/blob/main/homework2/images/PRT_InterRef_horizontal_collage.png" />
