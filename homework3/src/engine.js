@@ -1,4 +1,4 @@
-var gl, gl_draw_buffers;
+var gl;
 
 var bufferFBO;
 var bumpMap;
@@ -11,14 +11,13 @@ function GAMES202Main() {
 	canvas.width = window.screen.width;
 	canvas.height = window.screen.height;
 	// Init gl
-	gl = canvas.getContext('webgl');
+	gl = canvas.getContext('webgl2');
 	if (!gl) {
-		alert('Unable to initialize WebGL. Your browser or machine may not support it.');
+		alert('Unable to initialize WebGL 2. Your browser or machine may not support it.');
 		return;
 	}
-	gl.getExtension('OES_texture_float');
-	gl_draw_buffers = gl.getExtension('WEBGL_draw_buffers');
-	var maxdb = gl.getParameter(gl_draw_buffers.MAX_DRAW_BUFFERS_WEBGL);
+	gl.getExtension('EXT_color_buffer_float');
+	var maxdb = gl.getParameter(gl.MAX_DRAW_BUFFERS);
     console.log('MAX_DRAW_BUFFERS_WEBGL: ' + maxdb);
 
 	// Add camera

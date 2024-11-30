@@ -1,18 +1,20 @@
-attribute vec3 aVertexPosition;
-attribute vec3 aNormalPosition;
-attribute vec2 aTextureCoord;
+#version 300 es
+
+in vec3 aVertexPosition;
+in vec3 aNormalPosition;
+in vec2 aTextureCoord;
 
 uniform mat4 uLightVP;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
-varying mat4 vWorldToLight;
+out mat4 vWorldToLight;
 
-varying highp vec2 vTextureCoord;
-varying highp vec3 vNormalWorld;
-varying highp vec4 vPosWorld;
-varying highp float vDepth;
+out highp vec2 vTextureCoord;
+out highp vec3 vNormalWorld;
+out highp vec4 vPosWorld;
+out highp float vDepth;
 
 void main(void) {
   vec4 posWorld = uModelMatrix * vec4(aVertexPosition, 1.0);
