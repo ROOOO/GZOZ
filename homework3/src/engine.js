@@ -35,7 +35,7 @@ function GAMES202Main() {
 	cameraTarget = [2.92191, 0.98, 1.55037]
 	*/
 	camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-	camera.fbo = new FBO(gl);
+	camera.fbo = new FBO(gl, 5);
 
 	// Add resize listener
 	function setSize(width, height) {
