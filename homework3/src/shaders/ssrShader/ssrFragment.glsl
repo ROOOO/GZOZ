@@ -1,3 +1,5 @@
+#version 300 es
+
 #ifdef GL_ES
 precision highp float;
 #endif
@@ -11,8 +13,10 @@ uniform sampler2D uGNormalWorld;
 uniform sampler2D uGShadow;
 uniform sampler2D uGPosWorld;
 
-varying mat4 vWorldToScreen;
-varying highp vec4 vPosWorld;
+in mat4 vWorldToScreen;
+in highp vec4 vPosWorld;
+
+out vec4 FragColor;
 
 #define M_PI 3.1415926535897932384626433832795
 #define TWO_PI 6.283185307
@@ -86,7 +90,7 @@ vec2 GetScreenCoordinate(vec3 posWorld) {
 }
 
 float GetGBufferDepth(vec2 uv) {
-  float depth = texture2D(uGDepth, uv).x;
+  float depth = texture(uGDepth, uv).x;
   if (depth < 1e-2) {
     depth = 1000.0;
   }
@@ -94,22 +98,22 @@ float GetGBufferDepth(vec2 uv) {
 }
 
 vec3 GetGBufferNormalWorld(vec2 uv) {
-  vec3 normal = texture2D(uGNormalWorld, uv).xyz;
+  vec3 normal = texture(uGNormalWorld, uv).xyz;
   return normal;
 }
 
 vec3 GetGBufferPosWorld(vec2 uv) {
-  vec3 posWorld = texture2D(uGPosWorld, uv).xyz;
+  vec3 posWorld = texture(uGPosWorld, uv).xyz;
   return posWorld;
 }
 
 float GetGBufferuShadow(vec2 uv) {
-  float visibility = texture2D(uGShadow, uv).x;
+  float visibility = texture(uGShadow, uv).x;
   return visibility;
 }
 
 vec3 GetGBufferDiffuse(vec2 uv) {
-  vec3 diffuse = texture2D(uGDiffuse, uv).xyz;
+  vec3 diffuse = texture(uGDiffuse, uv).xyz;
   diffuse = pow(diffuse, vec3(2.2));
   return diffuse;
 }
@@ -214,5 +218,5 @@ void main() {
   L += EvalIndirectionalLight(wi, wo, uv);
 
   vec3 color = pow(clamp(L, vec3(0.0), vec3(1.0)), vec3(1.0 / 2.2));
-  gl_FragColor = vec4(vec3(color.rgb), 1.0);
+  FragColor = vec4(vec3(color.rgb), 1.0);
 }

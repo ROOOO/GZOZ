@@ -1,6 +1,8 @@
-attribute vec3 aVertexPosition;
-attribute vec3 aNormalPosition;
-attribute vec2 aTextureCoord;
+#version 300 es
+
+in vec3 aVertexPosition;
+in vec3 aNormalPosition;
+in vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
@@ -8,8 +10,8 @@ uniform mat4 uProjectionMatrix;
 uniform mat4 uLightMVP; 
 
 
-varying mat4 vWorldToScreen;
-varying highp vec4 vPosWorld;
+out mat4 vWorldToScreen;
+out highp vec4 vPosWorld;
 
 
 void main(void) {
