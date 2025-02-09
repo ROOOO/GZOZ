@@ -1,5 +1,5 @@
 class FBO{
-    constructor(gl, GBufferNum=1){
+    constructor(gl, GBufferNum=1, width=window.screen.width, height=window.screen.height){
         //定义错误函数
         function error() {
             if(framebuffer) gl.deleteFramebuffer(framebuffer);
@@ -16,7 +16,7 @@ class FBO{
                 return error();
             }
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, window.screen.width, window.screen.height, 0, gl.RGBA, gl.FLOAT, null);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -50,7 +50,7 @@ class FBO{
         // Create depth buffer
         var depthBuffer = gl.createRenderbuffer(); // Create a renderbuffer object
         gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer); // Bind the object to target
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, window.screen.width, window.screen.height);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);

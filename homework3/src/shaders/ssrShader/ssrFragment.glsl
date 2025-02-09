@@ -12,6 +12,7 @@ uniform sampler2D uGDepth;
 uniform sampler2D uGNormalWorld;
 uniform sampler2D uGShadow;
 uniform sampler2D uGPosWorld;
+uniform sampler2D uDepthMipmaps[11];
 
 in mat4 vWorldToScreen;
 in highp vec4 vPosWorld;
@@ -172,6 +173,96 @@ vec3 TestRayMarch(vec3 wi, vec2 uv) {
   return vec3(0.0);
 }
 
+ivec2 GetTextureSize(int level) {
+  if (level == 0) {
+    return textureSize(uDepthMipmaps[0], 0);
+  } else if (level == 1) {
+    return textureSize(uDepthMipmaps[1], 0);
+  } else if (level == 2) {
+    return textureSize(uDepthMipmaps[2], 0);
+  } else if (level == 3) {
+    return textureSize(uDepthMipmaps[3], 0);
+  } else if (level == 4) {
+    return textureSize(uDepthMipmaps[4], 0);
+  } else if (level == 5) {
+    return textureSize(uDepthMipmaps[5], 0);
+  } else if (level == 6) {
+    return textureSize(uDepthMipmaps[6], 0);
+  } else if (level == 7) {
+    return textureSize(uDepthMipmaps[7], 0);
+  } else if (level == 8) {
+    return textureSize(uDepthMipmaps[8], 0);
+  } else if (level == 9) {
+    return textureSize(uDepthMipmaps[9], 0);
+  } else if (level == 10) {
+    return textureSize(uDepthMipmaps[10], 0);
+  }
+  return textureSize(uDepthMipmaps[0], 0);
+}
+
+float GetDepthMapMipmapDepth(vec2 uv, int level) {
+  ivec2 size = GetTextureSize(level);
+  ivec2 p = ivec2(floor(uv * vec2(size)));
+  if (level == 0) {
+    return texelFetch(uDepthMipmaps[0], p, 0).x;
+  } else if (level == 1) {
+    return texelFetch(uDepthMipmaps[1], p, 0).x;
+  } else if (level == 2) {
+    return texelFetch(uDepthMipmaps[2], p, 0).x;
+  } else if (level == 3) {
+    return texelFetch(uDepthMipmaps[3], p, 0).x;
+  } else if (level == 4) {
+    return texelFetch(uDepthMipmaps[4], p, 0).x;
+  } else if (level == 5) {
+    return texelFetch(uDepthMipmaps[5], p, 0).x;
+  } else if (level == 6) {
+    return texelFetch(uDepthMipmaps[6], p, 0).x;
+  } else if (level == 7) {
+    return texelFetch(uDepthMipmaps[7], p, 0).x;
+  } else if (level == 8) {
+    return texelFetch(uDepthMipmaps[8], p, 0).x;
+  } else if (level == 9) {
+    return texelFetch(uDepthMipmaps[9], p, 0).x;
+  } else if (level == 10) {
+    return texelFetch(uDepthMipmaps[10], p, 0).x;
+  }
+  return texelFetch(uDepthMipmaps[0], p, 0).x;
+}
+
+bool RayMarchOpt(vec3 ori, vec3 dir, out vec3 hitPos) {
+  vec3 step = normalize(dir) * 0.05;
+  vec3 curPos = ori;
+  int level = 0;
+
+  while (level > -1 && level < 11) {
+    curPos += step * float(level);
+    vec2 uv = GetScreenCoordinate(curPos);
+    float depthMipmap = GetDepthMapMipmapDepth(uv, level);
+    float depth = GetDepth(curPos);
+    if (depth - depthMipmap > 0.0001) {
+      level -= 1;
+      if (level < 0) {
+        hitPos = curPos;
+        return true;
+      }
+    } else {
+      level += 1;
+    }
+  }
+  return false;
+}
+
+vec3 TestRayMarchOpt(vec3 wi, vec2 uv) {
+  vec3 normal = GetGBufferNormalWorld(uv);
+  vec3 wo = reflect(-wi, normal);
+  vec3 hitPos;
+  if (RayMarchOpt(vPosWorld.xyz, wo, hitPos)) {
+    vec2 hitUV = GetScreenCoordinate(hitPos);
+    return GetGBufferDiffuse(hitUV);;
+  }
+  return vec3(0.0);
+}
+
 #define SAMPLE_NUM 1
 
 vec3 EvalIndirectionalLight(vec3 wi, vec3 wo, vec2 uv) {
@@ -191,7 +282,7 @@ vec3 EvalIndirectionalLight(vec3 wi, vec3 wo, vec2 uv) {
     vec3 dir = normalize(m * localDir);
 
     vec3 hitPos;
-    if (RayMarch(ori, dir, hitPos)) {
+    if (RayMarchOpt(ori, dir, hitPos)) {
       vec2 hitUV = GetScreenCoordinate(hitPos);
       L += EvalDiffuse(dir, wo, uv) / pdf * EvalDiffuse(wi, dir, hitUV) * EvalDirectionalLight(hitUV);
     }
@@ -213,6 +304,9 @@ void main() {
 
   // testing RayMarch
   // L = (TestRayMarch(wo, uv)) * 1.;
+
+  // testing RayMarchOpt
+//  L = TestRayMarchOpt(wo, uv);
 
   // directional + indirectional lighting
   L += EvalIndirectionalLight(wi, wo, uv);

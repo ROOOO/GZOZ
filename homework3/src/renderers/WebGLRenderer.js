@@ -3,6 +3,7 @@ class WebGLRenderer {
     shadowMeshes = [];
     bufferMeshes = [];
     lights = [];
+    sceneDepthMesh = null;
 
     constructor(gl, camera) {
         this.gl = gl;
@@ -18,6 +19,9 @@ class WebGLRenderer {
     addMeshRender(mesh) { this.meshes.push(mesh); }
     addShadowMeshRender(mesh) { this.shadowMeshes.push(mesh); }
     addBufferMeshRender(mesh) { this.bufferMeshes.push(mesh); }
+    setSceneDepthMeshRender(mesh) {
+        this.sceneDepthMesh = mesh;
+    }
 
     render() {
         console.assert(this.lights.length != 0, "No light");
@@ -61,8 +65,19 @@ class WebGLRenderer {
         }
         // return
 
+        // Depth pass
+        if (this.sceneDepthMesh) {
+            this.sceneDepthMesh.draw();
+        }
+        // return
+
         // Camera pass
         for (let i = 0; i < this.meshes.length; i++) {
+            if (this.sceneDepthMesh) {
+                for (let level = 0; level < this.sceneDepthMesh.material.mipmaps.length; level++) {
+                    updatedParamters['uDepthMipmaps[' + level + ']'] = this.sceneDepthMesh.material.mipmaps[level].framebuffer.textures[0];
+                }
+            }
             this.meshes[i].draw(this.camera, null, updatedParamters);
         }
     }
